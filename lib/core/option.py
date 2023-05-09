@@ -50,10 +50,7 @@ def BruterRegister(args):
         loadConf()
     else:
         outputscreen.error("[+] Function development, coming soon!please use -lcf parameter")
-        if args.debug:
-            conf.debug = args.debug
-        else:
-            conf.debug = args.debug
+        conf.debug = args.debug
         sys.exit()
 
 def TargetRegister(args):
@@ -80,26 +77,23 @@ def TargetRegister(args):
             warnmsg = "[*] Loading %d targets, Maybe it's too much, continue? [y/N]" % (len(lists))
             outputscreen.warning(warnmsg)
             flag =input()
-            if flag in ('Y', 'y', 'yes', 'YES','Yes'):
-                pass
-            else:
+            if flag not in ('Y', 'y', 'yes', 'YES', 'Yes'):
                 msg = '[-] User quit!'
                 outputscreen.warning(msg)
                 sys.exit()
-        msg = '[+] Load targets from: %s' % args.target_input
+        msg = f'[+] Load targets from: {args.target_input}'
         outputscreen.success(msg)
         # save to conf
         for target in lists:
             conf.target.put(target)
         conf.target_nums = conf.target.qsize()
 
-    # 文件读入入队
     elif args.target_file:
         if not os.path.isfile(args.target_file):
-            msg = '[-] TargetFile not found: %s' % args.target_file
+            msg = f'[-] TargetFile not found: {args.target_file}'
             outputscreen.error(msg)
             sys.exit()
-        msg = '[+] Load targets from: %s' % args.target_file
+        msg = f'[+] Load targets from: {args.target_file}'
         outputscreen.success(msg)
         with open(args.target_file, 'r', encoding='utf-8') as f:
             targets = f.readlines()

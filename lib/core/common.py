@@ -62,9 +62,7 @@ def setPaths():
     # paths.LARGE_WEAK_PASS = os.path.join(paths.DATA_PATH, "pass1000.txt")
     # paths.UA_LIST_PATH = os.path.join(paths.DATA_PATH, "user-agents.txt")
 
-    if os.path.isfile(paths.CONFIG_PATH):
-        pass
-    else:
+    if not os.path.isfile(paths.CONFIG_PATH):
         msg = 'Config files missing, it may cause an issue.\n'
         outputscreen.error(msg)
         sys.exit(0)
@@ -87,8 +85,8 @@ def genIP(ip_range):
     ['192.168.1.1', '192.168.1.2', '192.168.1.3']
     '''
     # from https://segmentfault.com/a/1190000010324211
-    def num2ip (num):
-        return '%s.%s.%s.%s' % ((num >> 24) & 0xff, (num >> 16) & 0xff, (num >> 8) & 0xff, (num & 0xff))
+    def num2ip(num):
+        return f'{num >> 24 & 255}.{num >> 16 & 255}.{num >> 8 & 255}.{num & 255}'
 
     def ip2num(ip):
         ips = [int(x) for x in ip.split('.')]
@@ -110,7 +108,7 @@ def parseTarget(target):
             # 判断IP/Mask格式
             if ipv4withmask_re.search(parsed_url.path):
                 # 是子网还是网址 e.g. 192.168.1.1/24 or http://192.168.1.1/24
-                infomsg = "[*] %s is IP/Mask[Y] or URL(http://)[n]? [Y/n]" %target
+                infomsg = f"[*] {target} is IP/Mask[Y] or URL(http://)[n]? [Y/n]"
                 outputscreen.info(infomsg)
                 flag =input()
                 if flag in ('N', 'n', 'no', 'No', 'NO'):
@@ -119,13 +117,10 @@ def parseTarget(target):
                 else:
                     # 按子网处理 e.g. 192.168.1.1/24
                     lists=list(ipaddress.ip_interface(target).network)
-            # 判断网络范围格式 e.g. 192.168.1.1-192.168.1.100
             elif ipv4range_re.search(target):
                 lists=genIP(target)
-            # 按照链接处理
             else:
                 lists.append(target)
-        # 为http://格式
         else:
             lists.append(target)
     except:

@@ -44,7 +44,7 @@ class AttribDict(dict):
         try:
             return self.__getitem__(item)
         except KeyError:
-            raise AttributeError("unable to access item '%s'" % item)
+            raise AttributeError(f"unable to access item '{item}'")
 
     def __setattr__(self, item, value):
         """
