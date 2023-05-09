@@ -45,10 +45,7 @@ def iterate_old(n):
         return replacement
     return wrap
 
-if sys.version_info >= (2,7):
-    iterate = iterate_27
-else:
-    iterate = iterate_old
+iterate = iterate_27 if sys.version_info >= (2,7) else iterate_old
 
 # utilities
 
@@ -80,30 +77,37 @@ class TestIPSet(unittest.TestCase):
 
     @iterate(1000)
     def testRandomContains(self):
-        prefixes = [random_ipv4_prefix() for i in xrange(random.randrange(50))]
+        prefixes = [random_ipv4_prefix() for _ in xrange(random.randrange(50))]
         question = random_ipv4_prefix()
         answer = any(question in pfx for pfx in prefixes)
         ipset = IPy.IPSet(prefixes)
-        self.assertEqual(question in ipset, answer,
-                "%s in %s != %s (made from %s)" % (question, ipset, answer, prefixes))
+        self.assertEqual(
+            question in ipset,
+            answer,
+            f"{question} in {ipset} != {answer} (made from {prefixes})",
+        )
         
 
     @iterate(1000)
     def testRandomDisjoint(self):
-        prefixes1 = [random_ipv4_prefix() for i in xrange(random.randrange(50))]
-        prefixes2 = [random_ipv4_prefix() for i in xrange(random.randrange(50))]
-        # test disjointnes the stupid way
-        disjoint = True
-        for p1, p2 in itertools.product(prefixes1, prefixes2):
-            if p1 in p2 or p2 in p1:
-                disjoint = False
-                break
+        prefixes1 = [random_ipv4_prefix() for _ in xrange(random.randrange(50))]
+        prefixes2 = [random_ipv4_prefix() for _ in xrange(random.randrange(50))]
+        disjoint = not any(
+            p1 in p2 or p2 in p1
+            for p1, p2 in itertools.product(prefixes1, prefixes2)
+        )
         ipset1 = IPy.IPSet(prefixes1)
         ipset2 = IPy.IPSet(prefixes2)
-        self.assertEqual(ipset1.isdisjoint(ipset2), disjoint,
-                "%s.isdisjoint(%s) != %s" % (ipset1, ipset2, disjoint))
-        self.assertEqual(ipset2.isdisjoint(ipset1), disjoint,
-                "%s.isdisjoint(%s) != %s" % (ipset2, ipset1, disjoint))
+        self.assertEqual(
+            ipset1.isdisjoint(ipset2),
+            disjoint,
+            f"{ipset1}.isdisjoint({ipset2}) != {disjoint}",
+        )
+        self.assertEqual(
+            ipset2.isdisjoint(ipset1),
+            disjoint,
+            f"{ipset2}.isdisjoint({ipset1}) != {disjoint}",
+        )
 
 if __name__ == "__main__":
     unittest.main()

@@ -51,6 +51,6 @@ def run():
     initEngine()
     # Coroutine mode
     outputscreen.success('[+] Coroutine mode')
-    gevent.joinall([gevent.spawn(scan) for i in range(0, th.thread_num)])
+    gevent.joinall([gevent.spawn(scan) for _ in range(0, th.thread_num)])
     if 'errmsg' in th:
         outputscreen.error(th.errmsg)

@@ -38,5 +38,4 @@ def cmdLineParser():
 
     if len(sys.argv) == 1:
         sys.argv.append("-h")
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()

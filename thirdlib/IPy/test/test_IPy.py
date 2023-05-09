@@ -367,21 +367,18 @@ class checkChecks(unittest.TestCase):
 class PythonObjectBehaviour(unittest.TestCase):
     def testIfUsuableAsDictionaryKey(self):
         """IP Object should be usable as dictionary key"""
-        d = {}
-        d[IPy.IP('127.0.0.1')] = 1
-        d[IPy.IP('2001::1')] = 1
-        d[IPy.IP('127.0.0.0/24')] = 1
-        d[IPy.IP('2001::/64')] = 1
+        d = {
+            IPy.IP('127.0.0.1'): 1,
+            IPy.IP('2001::1'): 1,
+            IPy.IP('127.0.0.0/24'): 1,
+            IPy.IP('2001::/64'): 1,
+        }
 
     def testIfCanBeInteratedOver(self):
         """It should be possible to iterate over an IP Object."""
-        i = 0
-        for x in IPy.IP('127.0.0.0/24'):
-            i += 1
+        i = sum(1 for _ in IPy.IP('127.0.0.0/24'))
         self.assertEqual(i, 256, "iteration over a /24 should yiels 256 values")
-        i = 0
-        for x in IPy.IP('2001::/124'):
-            i += 1
+        i = sum(1 for _ in IPy.IP('2001::/124'))
         self.assertEqual(i, 16, "iteration over a /124 should yiels 16 values")
 
     def testIfComparesEqual(self):
@@ -801,15 +798,12 @@ def timeout(func, args=(), kwargs={}, timeout_duration=1, default=None):
     it.setDaemon(True)
     it.start()
     it.join(timeout_duration)
-    if it.isAlive():
-        return default
-    else:
-        return it.result
+    return default if it.isAlive() else it.result
 
 class IPSetChecks(unittest.TestCase):
     def setUp(self):
         #array
-        self.a = [IPy.IP("192.168." + str(i) + ".0/24") for i in range(256)]
+        self.a = [IPy.IP(f"192.168.{str(i)}.0/24") for i in range(256)]
         #range
         self.r = IPy.IP('192.168.0.0/16')
         #testing set
@@ -877,8 +871,9 @@ class IPSetChecks(unittest.TestCase):
 
 class RegressionTest(unittest.TestCase):
     def testNulNetmask(self):
-        ip = timeout(IPy.IP, ["0.0.0.0/0.0.0.0"], timeout_duration=0.250, default=None)
-        if ip:
+        if ip := timeout(
+            IPy.IP, ["0.0.0.0/0.0.0.0"], timeout_duration=0.250, default=None
+        ):
             text = str(ip)
         else:
             text = "*TIMEOUT*"
